@@ -1,5 +1,8 @@
 pipeline {
   agent any
+  def server = Artifactory.server "SERVER_ID"
+  def rtMaven = Artifactory.newMavenBuild()
+  def buildInfo
   stages {
     stage('Build') {
       agent {
@@ -32,6 +35,7 @@ pipeline {
           'Performance' : {
             unstash 'war'
             sh '# ./mvn -B gatling:execute'
+            sh 'mvn -'
          })
        }
     }
@@ -51,6 +55,23 @@ pipeline {
         sh 'echo Static'
       }
     }
+
+    stage('Artifactory configuration') {
+        // Tool name from Jenkins configuration
+        rtMaven.tool = "Maven-3.5.0"
+        // Set Artifactory repositories for dependencies resolution and artifacts deployment.
+        rtMaven.deployer releaseRepo:'libs-release-local', snapshotRepo:'libs-snapshot-local', server: server
+        rtMaven.resolver releaseRepo:'libs-release', snapshotRepo:'libs-snapshot', server: server
+    }
+
+    stage('Maven build') {
+        buildInfo = rtMaven.run pom: 'jhipster-sample-application/pom.xml', goals: 'clean install'
+    }
+
+    stage('Publish build info') {
+        server.publishBuildInfo buildInfo
+    }
+
     stage('Deploy to Staging') {
       when {
         branch 'master'
