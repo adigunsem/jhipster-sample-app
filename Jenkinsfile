@@ -6,6 +6,7 @@ node {
     def buildInfo
 
     stage('Artifactory configuration') {
+        sh 'mvn -v'
         // Tool name from Jenkins configuration
         rtMaven.tool = "Maven-3.1.0"
         // Set Artifactory repositories for dependencies resolution and artifacts deployment.
