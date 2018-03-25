@@ -5,6 +5,10 @@ node {
     def rtMaven = Artifactory.newMavenBuild()
     def buildInfo
 
+    stage('mvn build') {
+        sh 'mvn -B -DskipTests clean package'
+    }
+
     stage('Artifactory configuration') {
         // Tool name from Jenkins configuration
         rtMaven.tool = "maven-3.5.3"
