@@ -5,11 +5,9 @@ node {
     def rtMaven = Artifactory.newMavenBuild()
     def buildInfo
 
-    withMaven(
-        maven: 'maven-3.5.3') {
-
-      // Run the maven build
-        sh 'mvn -B -DskipTests clean package'
+    tools {
+        maven 'Maven 3.5.3'
+        jdk 'jdk8'
     }
 
     stage('mvn build') {
